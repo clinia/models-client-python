@@ -1,0 +1,17 @@
+Metadata-Version: 2.1
+Name: models_client_python
+Version: 0.1.0
+Summary: This package is used to communicate with Clinia's models that are deployed with triton-model-server via gRPC
+Author-email: Daniel Buades Marcos <daniel.buades@clinia.com>, Etienne Soulard-Geoffrion <etienne.soulard-geoffrion@clinia.com>
+Requires-Python: <3.12.0,>=3.11.6
+Description-Content-Type: text/markdown
+Requires-Dist: numpy<2.0.0,>=1.24.0
+Requires-Dist: grpcio==1.64.0
+Requires-Dist: protobuf==4.25.3
+Requires-Dist: pydantic>=2.10.3
+Provides-Extra: tritonclient
+Requires-Dist: tritonclient[grpc]==2.46.0; extra == "tritonclient"
+
+# models_client_python
+
+This package is used to communicate with Clinia's models that are deployed with triton-model-server via gRPC

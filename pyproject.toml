@@ -11,8 +11,9 @@ authors = [
 
 dependencies = [
     "numpy>=1.24.0,<2.0.0",
-    "grpcio==1.64.0", # https://github.com/triton-inference-server/client/issues/731 suggests using 1.58.0 but the official client uses 1.64.0
-    "protobuf==4.25.3" # protobuf= ">=3.5.0,<5" and this is the last 4.xx version supported by buf.build/protocolbuffers/python:v25.3 and buf.build/protocolbuffers/pyi:v25.3
+    "grpcio==1.64.0", # https://github.com/triton-inference-server/client/issues/731 suggests using 1.58.0 but the official client uses 1.64.0 # protobuf= ">=3.5.0,<5" and this is the last 4.xx version supported by buf.build/protocolbuffers/python:v25.3 and buf.build/protocolbuffers/pyi:v25.3
+    "protobuf==4.25.3",
+    "pydantic>=2.10.3",
 ]
 
 [project.optional-dependencies]
