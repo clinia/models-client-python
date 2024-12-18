@@ -1,0 +1,59 @@
+[project]
+name = "models_client_python"
+version = "0.1.0"
+description = "This package is used to communicate with Clinia's models that are deployed with triton-model-server via gRPC"
+readme = "README.md"
+requires-python = ">=3.11.6,<3.12.0"
+authors = [
+    { name = "Daniel Buades Marcos", email = "daniel.buades@clinia.com" },
+    { name = "Etienne Soulard-Geoffrion", email = "etienne.soulard-geoffrion@clinia.com" },
+]
+
+dependencies = [
+    "numpy>=1.24.0,<2.0.0",
+    "grpcio==1.64.0", # https://github.com/triton-inference-server/client/issues/731 suggests using 1.58.0 but the official client uses 1.64.0
+    "protobuf==4.25.3" # protobuf= ">=3.5.0,<5" and this is the last 4.xx version supported by buf.build/protocolbuffers/python:v25.3 and buf.build/protocolbuffers/pyi:v25.3
+]
+
+[project.optional-dependencies]
+tritonclient = [
+  "tritonclient[grpc]==2.46.0" # Only used for comparing the grpc generated client to that of Nvidia
+]
+
+[dependency-groups]
+dev = [
+    "ruff==0.8.2",
+    "pre-commit==3.7.1",
+    "pytest>=8.3.3",
+    "pytest-cov>=3.0.0"
+]
+
+[tool.uv]
+package=true
+default-groups = ["dev"]
+
+[tool.setuptools.packages.find]
+include = ["models_client_python", "models_client_python.*"]
+
+## Test coverage
+[tool.coverage.run]
+relative_files = true
+branch = true
+parallel = true
+
+## Imports and formatting
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+ignore = ["C901", "E501", "F401", "F403", "F841", "W605"]
+select = ["B", "B9", "C", "E", "F", "W", "I001"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 18
+
+# lsp
+[tool.pyright]
+# allow uncomplete types e.g. tuple instead of tuple[str]
+typeCheckingMode = "standard"
