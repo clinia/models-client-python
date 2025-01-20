@@ -1,5 +1,4 @@
 import numpy as np
-
 from clients.py.src.embedder_client import EmbedderClient
 from clients.py.test import DATA_PATH, MODEL_NAME, MODEL_VERSION, TEXTS, TRITON_URL, EmbedderResults
 

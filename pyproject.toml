@@ -1,9 +1,9 @@
 [project]
 name = "models_client_python"
 version = "0.1.0"
-description = "This package is used to communicate with Clinia's models that are deployed with triton-model-server via gRPC"
+description = "This package is used to communicate with Clinia's models that are deployed with Triton Inference Server"
 readme = "README.md"
-requires-python = ">=3.11.6,<3.12.0"
+requires-python = ">=3.11,<3.12.0"
 authors = [
     { name = "Daniel Buades Marcos", email = "daniel.buades@clinia.com" },
     { name = "Etienne Soulard-Geoffrion", email = "etienne.soulard-geoffrion@clinia.com" },
@@ -26,7 +26,7 @@ dev = [
     "ruff==0.8.2",
     "pre-commit==3.7.1",
     "pytest>=8.3.3",
-    "pytest-cov>=3.0.0"
+    "pytest-cov>=4.0.0"
 ]
 
 [tool.uv]
@@ -46,6 +46,7 @@ parallel = true
 [tool.ruff]
 line-length = 120
 target-version = "py311"
+extend-exclude = ["gen"]
 
 [tool.ruff.lint]
 ignore = ["C901", "E501", "F401", "F403", "F841", "W605"]

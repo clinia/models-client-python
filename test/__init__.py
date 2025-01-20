@@ -36,9 +36,7 @@ def save_results():
     from clients.py.src.embedder_client import EmbedderClient
 
     client = EmbedderClient(url=TRITON_URL)
-    embeddings = client.get_embeddings(
-        model_name=MODEL_NAME, model_version=MODEL_VERSION, texts=TEXTS
-    )
+    embeddings = client.get_embeddings(model_name=MODEL_NAME, model_version=MODEL_VERSION, texts=TEXTS)
 
     assert embeddings.size != 0
     assert embeddings.shape == (2, 384)
