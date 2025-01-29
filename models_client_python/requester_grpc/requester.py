@@ -10,12 +10,15 @@ from models_client_python.common.input import Input
 from models_client_python.common.output import Output
 from models_client_python.common.requester import Requester, RequesterConfig
 from models_client_python.requester_grpc.gen import grpc_service_pb2, grpc_service_pb2_grpc
-from models_client_python.requester_grpc.postprocess import postprocess_bytes, postprocess_fp32
-from models_client_python.requester_grpc.preprocess import preprocess_bytes
+from models_client_python.requester_grpc.postprocess import decode_bytes, decode_fp32
+from models_client_python.requester_grpc.preprocess import encode_bytes
 
 
 class RequesterGrpc(Requester):
     def __init__(self, config: RequesterConfig):
+        # Always define _channel, even if we don’t create a real channel
+        self._channel = None
+
         if config.host.scheme == HostScheme.http:
             self._channel = grpc.insecure_channel(config.host.host())
 
@@ -31,7 +34,7 @@ class RequesterGrpc(Requester):
         for input in inputs:
             # TODO: Support other datatypes.
             if input.datatype == Datatype.bytes:
-                raw_inputs.append(preprocess_bytes(input=input))
+                raw_inputs.append(encode_bytes(input=input))
 
             else:
                 raise NotImplementedError(f"Unsupported datatype: {input.datatype}")
@@ -78,7 +81,7 @@ class RequesterGrpc(Requester):
 
             ## TODO: this was in the original code, assert for these conditions in tests
             # if index < len(response.raw_output_contents):
-            #     np_array = postprocess_bytes | postprocess_fp32
+            #     np_array = decode_bytes | decode_fp32
             # elif len(output.contents.bytes_contents) != 0:
             #     np_array = np.array(output.contents.bytes_contents, copy=False)
             # else:
@@ -86,24 +89,24 @@ class RequesterGrpc(Requester):
 
             # TODO: Support other datatypes.
             if output.datatype == Datatype.fp32:
-                content = postprocess_fp32(raw_output=raw_output, shape=output.shape)
+                content = decode_fp32(raw_output=raw_output)
                 outputs.append(
                     Output(
                         name=output.name,
                         shape=output.shape,
                         datatype=output.datatype,
-                        contents=Content(fp32_contents=content),
+                        content=Content(fp32_contents=content),
                     )
                 )
 
             elif output.datatype == Datatype.bytes:
-                content = postprocess_bytes(raw_output=raw_output, shape=output.shape)
+                content = decode_bytes(raw_output=raw_output)
                 outputs.append(
                     Output(
                         name=output.name,
                         shape=output.shape,
                         datatype=output.datatype,
-                        contents=Content(string_contents=content),
+                        content=Content(string_contents=content),
                     )
                 )
 
@@ -116,10 +119,16 @@ class RequesterGrpc(Requester):
         raise NotImplementedError
 
     def close(self):
-        self._channel.close()
+        """
+        Safely close the channel if it exists.
+        """
+        if self._channel is not None:
+            self._channel.close()
+            self._channel = None  # optional, helps avoid double-close
 
     def __exit__(self, type, value, traceback):
         self.close()
 
     def __del__(self):
+        # Python calls __del__ even if __init__ failed, so let's be safe.
         self.close()

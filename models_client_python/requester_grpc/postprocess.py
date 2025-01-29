@@ -1,27 +1,27 @@
 import struct
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
 
 
 # TODO: Unit test in [RET-2078,RET-2079]
-def postprocess_fp32(raw_output: bytes, shape: Tuple[int, ...]) -> List[float]:
+def decode_fp32(raw_output: bytes) -> List[float]:
     np_array = np.frombuffer(raw_output, dtype=np.float32)
 
-    return np_array.reshape(shape).tolist()
+    return np_array.tolist()
 
 
-def postprocess_bytes(raw_output: bytes, shape: Tuple[int, ...]) -> List[str]:
+def decode_bytes(raw_output: bytes) -> List[str]:
     """
     String results contain a 4-byte string length followed by the actual string characters.
     Hence, need to decode the raw bytes to convert into array elements.
     """
     np_array = _deserialize_bytes_tensor(raw_output)
 
-    return np_array.reshape(shape)
+    return np_array.tolist()
 
 
-def _deserialize_bytes_tensor(encoded_tensor):
+def _deserialize_bytes_tensor(encoded_tensor) -> np.array:
     """
     Deserializes an encoded bytes tensor into a
     numpy array of dtype of python objects

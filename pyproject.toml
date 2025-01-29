@@ -38,6 +38,12 @@ include = ["models_client_python", "models_client_python.*"]
 
 ## Test coverage
 [tool.coverage.run]
+source = [
+  "models_client_python"
+]
+omit = [
+  "models_client_python/requester_grpc/gen/*"
+]
 relative_files = true
 branch = true
 parallel = true

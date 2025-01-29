@@ -16,7 +16,7 @@ _CHUNKER_INPUT_DATATYPE = Datatype.bytes
 
 class Chunk(BaseModel):
     id: str
-    chunkText: str
+    text: str
     startIndex: int
     endIndex: int
     tokenCount: int
@@ -47,7 +47,7 @@ class Chunker:
                 name=_CHUNKER_INPUT_KEY,
                 shape=(len(req.texts), 1),
                 datatype=_CHUNKER_INPUT_DATATYPE,
-                contents=Content(string_contents=req.texts),
+                content=Content(string_contents=req.texts),
             )
         ]
 
@@ -59,16 +59,21 @@ class Chunker:
                 output_keys=[_CHUNKER_OUTPUT_KEY],
             )
 
-            # Since we have only one output, we can directly access the first output.
-            texts_chunks = outputs[0].get_string_contents()
+            if outputs:
+                # Since we have only one output, we can directly access the first output.
+                texts_chunks = outputs[0].get_string_matrix_contents()
 
-            # Format chunks as class
-            formatted_chunks = []
-            for text_chunks in texts_chunks:
-                formatted_chunks = [Chunk.model_validate_json(chunk) for chunk in text_chunks]
-                formatted_chunks.append(formatted_chunks)
+                # Format chunks as class
+                formatted_texts_chunks = []
+                for text_chunks in texts_chunks:
+                    formatted_text_chunks = [
+                        Chunk.model_validate_json(chunk) for chunk in text_chunks if chunk != "pad"
+                    ]
+                    formatted_texts_chunks.append(formatted_text_chunks)
 
-            return ChunkResponse(id=req.id, chunks=formatted_chunks)
+                return ChunkResponse(id=req.id, chunks=formatted_texts_chunks)
+            else:
+                return ChunkResponse(id=req.id)
 
         except ValueError as e:
             return ChunkResponse(id=req.id)

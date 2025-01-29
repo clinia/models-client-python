@@ -11,10 +11,10 @@ class Input(BaseModel, use_enum_values=True):
     name: str
     shape: Tuple[int, ...]
     datatype: Datatype
-    contents: Content
+    content: Content
 
     def get_string_contents(self) -> List[str] | None:
         if self.datatype != Datatype.bytes:
             return None
 
-        return self.contents.string_contents
+        return self.content.string_contents

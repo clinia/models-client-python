@@ -5,8 +5,7 @@ import numpy as np
 from models_client_python.common.input import Input
 
 
-# TODO: unit test [RET-2078,RET-2079]
-def preprocess_bytes(input: Input):
+def encode_bytes(input: Input) -> bytes:
     string_contents = input.get_string_contents()
     encoded_list = [text.encode("utf8") for text in string_contents]
     encoded_array = np.array(encoded_list, dtype=np.bytes_).reshape(len(encoded_list), 1)
@@ -17,7 +16,7 @@ def preprocess_bytes(input: Input):
         return b""
 
 
-def _serialize_bytes_tensor(input_tensor):
+def _serialize_bytes_tensor(input_tensor) -> np.array:
     """
     Serializes a bytes tensor into a flat numpy array of length prepended
     bytes. The numpy array should use dtype of np.object. For np.bytes,

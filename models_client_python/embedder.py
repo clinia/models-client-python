@@ -39,7 +39,7 @@ class Embedder:
                 name=_EMBEDDER_INPUT_KEY,
                 shape=(len(req.texts), 1),
                 datatype=_EMBEDDER_INPUT_DATATYPE,
-                contents=Content(string_contents=req.texts),
+                content=Content(string_contents=req.texts),
             )
         ]
 
@@ -51,9 +51,12 @@ class Embedder:
                 output_keys=[_EMBEDDER_OUTPUT_KEY],
             )
 
-            # Since we have only one output, we can directly access the first output.
-            embeddings = outputs[0].get_fp32_contents()
-            return EmbedResponse(id=req.id, embeddings=embeddings)
+            if outputs:
+                # Since we have only one output, we can directly access the first output.
+                embeddings = outputs[0].get_fp32_matrix_contents()
+                return EmbedResponse(id=req.id, embeddings=embeddings)
+            else:
+                return EmbedResponse(id=req.id)
 
         except ValueError as e:
             return EmbedResponse(id=req.id)
