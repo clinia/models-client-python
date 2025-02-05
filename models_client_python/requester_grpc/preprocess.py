@@ -37,10 +37,11 @@ def build_request(
 
     ## Format Request
     # NOTE: There will be multiple IDs inside a request when batching (one per input), we just take the first one to assert later on that the model answered to the right batch.
+    # NOTE: The model version is always set to 1 because all models deployed within the same Triton server instance -- when stored in different model repositories -- must have unique names.
     request = grpc_service_pb2.ModelInferRequest(
         id=inputs[0].id,
-        model_name=model_name,
-        model_version=model_version,
+        model_name=f"{model_name}:{model_version}",
+        model_version="1",
         inputs=grpc_inputs,
         outputs=grpc_outputs,
         raw_input_contents=raw_inputs,
