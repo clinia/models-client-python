@@ -21,6 +21,42 @@ class Requester(ABC):
     def close(self) -> None:
         pass
 
+    @abstractmethod
+    def __enter__(self):
+        pass
+
+    @abstractmethod
+    def __exit__(self, type, value, traceback):
+        pass
+
+    @abstractmethod
+    def __del__(self):
+        pass
+
+
+class RequesterAsync(ABC):
+    @abstractmethod
+    async def infer(
+        self, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]
+    ) -> List[Output]:
+        pass
+
+    @abstractmethod
+    async def stream(self, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]) -> str:
+        pass
+
+    @abstractmethod
+    async def close(self) -> None:
+        pass
+
+    @abstractmethod
+    async def __aenter__(self):
+        pass
+
+    @abstractmethod
+    async def __aexit__(self, type, value, traceback):
+        pass
+
 
 class RequesterConfig(BaseModel):
     host: Host

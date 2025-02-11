@@ -12,11 +12,11 @@ if __name__ == "__main__":
     ## Define gRPC requester config
     requester_config = RequesterConfig(host=Host(url="127.0.0.1", port="8001", scheme=HostScheme.http))
 
-    ## Initialize Embedder
-    embedder = Embedder.from_grpc(config=requester_config)
-
-    ## Send request
+    ## Prepare request
     request = EmbedRequest(id=str(uuid4()), texts=TEXTS)
-    response = embedder.embed(model_name=MODEL_NAME, model_version=MODEL_VERSION, req=request)
 
-    print(response)
+    ## Initialize Embedder
+    with Embedder.from_grpc(config=requester_config) as embedder:
+        ## Execute the request
+        embedings = embedder.embed(model_name=MODEL_NAME, model_version=MODEL_VERSION, req=request)
+        print(embedings)

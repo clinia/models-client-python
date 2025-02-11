@@ -26,7 +26,8 @@ dev = [
     "ruff==0.8.2",
     "pre-commit==3.7.1",
     "pytest>=8.3.3",
-    "pytest-cov>=4.0.0"
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.25.3",
 ]
 
 [tool.uv]
@@ -36,7 +37,10 @@ default-groups = ["dev"]
 [tool.setuptools.packages.find]
 include = ["models_client_python", "models_client_python.*"]
 
-## Test coverage
+## Test
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+
 [tool.coverage.run]
 source = [
   "models_client_python"

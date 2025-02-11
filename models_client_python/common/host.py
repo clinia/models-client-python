@@ -19,7 +19,7 @@ class Host(BaseModel):
         """
         return f"{self.scheme}://{self.url}:{self.port}"
 
-    def host(self) -> str:
+    def target(self) -> str:
         """
         Returns the host in the format of 'url:port'
         """

@@ -1,8 +1,52 @@
 import struct
+from typing import List
 
 import numpy as np
 
+from models_client_python.common.datatype import Datatype
 from models_client_python.common.input import Input
+from models_client_python.requester_grpc.gen import grpc_service_pb2
+
+
+def build_request(
+    model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]
+) -> grpc_service_pb2.ModelInferRequest:
+    ## Prepare Inputs
+    raw_inputs = []
+    grpc_inputs = []
+    for input in inputs:
+        # TODO: Support other datatypes.
+        if input.datatype == Datatype.bytes:
+            raw_inputs.append(encode_bytes(input=input))
+
+        else:
+            raise NotImplementedError(f"Unsupported datatype: {input.datatype}")
+
+        grpc_inputs.append(
+            grpc_service_pb2.ModelInferRequest.InferInputTensor(
+                name=input.name,
+                datatype=input.datatype,
+                shape=input.shape,
+            )
+        )
+
+    ## Prepare Outputs
+    grpc_outputs = [
+        grpc_service_pb2.ModelInferRequest.InferRequestedOutputTensor(name=output_key) for output_key in output_keys
+    ]
+
+    ## Format Request
+    # NOTE: There will be multiple IDs inside a request when batching (one per input), we just take the first one to assert later on that the model answered to the right batch.
+    request = grpc_service_pb2.ModelInferRequest(
+        id=inputs[0].id,
+        model_name=model_name,
+        model_version=model_version,
+        inputs=grpc_inputs,
+        outputs=grpc_outputs,
+        raw_input_contents=raw_inputs,
+    )
+
+    return request
 
 
 def encode_bytes(input: Input) -> bytes:

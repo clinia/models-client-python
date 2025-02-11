@@ -1,13 +1,14 @@
+import logging
 from typing import List
 from uuid import uuid4
 
 from pydantic import BaseModel
 
+from models_client_python.client import Client
 from models_client_python.common.content import Content
 from models_client_python.common.datatype import Datatype
 from models_client_python.common.input import Input
-from models_client_python.common.requester import Requester, RequesterConfig
-from models_client_python.requester_grpc.requester import RequesterGrpc
+from models_client_python.common.output import Output
 
 _RANKER_QUERY_INPUT_KEY = "query"
 _RANKER_QUERY_INPUT_DATATYPE = Datatype.bytes
@@ -29,19 +30,11 @@ class RankResponse(BaseModel):
     scores: List[float] | None = None
 
 
-class Ranker:
-    def __init__(self, requester: Requester):
-        self.requester = requester
-
-    @classmethod
-    def from_grpc(cls, config: RequesterConfig):
-        return cls(requester=RequesterGrpc(config=config))
-
-    def rank(self, model_name: str, model_version: str, req: RankRequest) -> RankResponse:
-        ## Extend query to be the same size as texts
+class Ranker(Client):
+    @staticmethod
+    def _build_inputs(req: RankRequest) -> List[Input]:
         input_queries = [req.query] * len(req.texts)
-
-        inputs: List[Input] = [
+        return [
             Input(
                 id=req.id,
                 name=_RANKER_QUERY_INPUT_KEY,
@@ -58,6 +51,26 @@ class Ranker:
             ),
         ]
 
+    @staticmethod
+    def _process_outputs(outputs: List[Output], req: RankRequest) -> RankResponse:
+        if not outputs:
+            raise ValueError("No outputs received")
+
+        # Since we have only one output, we can directly access the first output.
+        scores = outputs[0].get_fp32_matrix_contents()
+
+        # Flatten the 2D slice into a 1D slice
+        flattened_scores = []
+        for score in scores:
+            if len(score) != 1:
+                raise ValueError(f"Expected a single score per passage, but got {len(score)} elements")
+            flattened_scores.extend(score)
+
+        return RankResponse(id=req.id, scores=flattened_scores)
+
+    def rank(self, model_name: str, model_version: str, req: RankRequest) -> RankResponse:
+        inputs = self._build_inputs(req)
+
         try:
             outputs = self.requester.infer(
                 model_name=model_name,
@@ -65,21 +78,24 @@ class Ranker:
                 inputs=inputs,
                 output_keys=[_RANKER_OUTPUT_KEY],
             )
-
-            if outputs:
-                # Since we have only one output, we can directly access the first output.
-                scores = outputs[0].get_fp32_matrix_contents()
-
-                # Flatten the 2D slice into a 1D slice
-                flattened_scores = []
-                for score in scores:
-                    if len(score) != 1:
-                        raise ValueError(f"Expected a single score per passage, but got {len(score)} elements")
-                    flattened_scores.extend(score)
-
-                return RankResponse(id=req.id, scores=flattened_scores)
-            else:
-                return RankResponse(id=req.id)
+            return self._process_outputs(outputs, req)
 
         except ValueError as e:
+            logging.error(f"Error while chunking: {e}")
+            return RankResponse(id=req.id)
+
+    async def rank_async(self, model_name: str, model_version: str, req: RankRequest) -> RankResponse:
+        inputs = self._build_inputs(req)
+
+        try:
+            outputs = await self.requester.infer(
+                model_name=model_name,
+                model_version=model_version,
+                inputs=inputs,
+                output_keys=[_RANKER_OUTPUT_KEY],
+            )
+            return self._process_outputs(outputs, req)
+
+        except ValueError as e:
+            logging.error(f"Error while chunking: {e}")
             return RankResponse(id=req.id)
