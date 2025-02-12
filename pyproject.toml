@@ -12,7 +12,7 @@ authors = [
 # We need to match gRPC dependencies with those of the official client: https://github.com/triton-inference-server/client/blob/main/src/python/library/requirements/requirements_grpc.txt
 dependencies = [
     "numpy>=1.24.0,<2.0.0",
-    "grpcio>=1.63.0,<1.68",
+    "grpcio==1.68",
     "protobuf>=5.26.1,<6.0dev",
     "pydantic>=2.10.3",
 ]
