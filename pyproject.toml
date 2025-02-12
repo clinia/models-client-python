@@ -12,15 +12,11 @@ authors = [
 # We need to match gRPC dependencies with those of the official client: https://github.com/triton-inference-server/client/blob/main/src/python/library/requirements/requirements_grpc.txt
 dependencies = [
     "numpy>=1.24.0,<2.0.0",
-    "grpcio==1.68",
+    "grpcio==1.67.1",
     "protobuf>=5.26.1,<6.0dev",
     "pydantic>=2.10.3",
 ]
 
-# [project.optional-dependencies]
-# tritonclient = [
-#   "tritonclient[grpc]==2.46.0" # Only used for comparing the grpc generated client to that of Nvidia
-# ]
 
 [dependency-groups]
 dev = [
@@ -29,6 +25,12 @@ dev = [
     "pytest>=8.3.3",
     "pytest-cov>=4.0.0",
     "pytest-asyncio>=0.25.3",
+]
+
+# Only used for comparing the Python grpc generated client to the official one.
+# If our python client matches the official implementation, since we compare our the three outputs anyways.
+tritonclient = [
+  "tritonclient[grpc]==2.53.0"
 ]
 
 [tool.uv]
