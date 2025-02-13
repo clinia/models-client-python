@@ -4,6 +4,7 @@ from models_client_python.requester_grpc.requester import RequesterGrpc
 from models_client_python.requester_grpc.requester_async import RequesterAsyncGrpc
 
 
+# Test
 class Client(BaseClient):
     def __init__(self, requester: Requester):
         self.requester = requester
