@@ -1,4 +1,5 @@
 import asyncio
+from os import getenv
 from typing import List
 from uuid import uuid4
 
@@ -23,8 +24,8 @@ async def main(requester_config: RequesterConfig, queries: List[str]) -> List[Em
 
 
 if __name__ == "__main__":
-    MODEL_NAME = "embedder_medical_journals_qa"
-    MODEL_VERSION = "120240905185426"
+    MODEL_NAME = getenv("CLINIA_MODEL_NAME")
+    MODEL_VERSION = getenv("CLINIA_MODEL_VERSION")
     TEXTS = ["Clinia is based in Montreal"]
 
     ## Define gRPC requester config
