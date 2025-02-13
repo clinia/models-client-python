@@ -1,3 +1,13 @@
+"""
+Handles preprocessing of model inference requests for gRPC communication.
+
+This module provides functions to build and encode gRPC requests from the client's
+input format. It handles various data types and ensures proper serialization of
+input tensors for transmission.
+
+Some functions in this module are adapted from the official Triton client library.
+"""
+
 # Copyright 2020-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,6 +47,21 @@ from models_client_python.requester_grpc.gen import grpc_service_pb2
 def build_request(
     model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]
 ) -> grpc_service_pb2.ModelInferRequest:
+    """
+    Builds a gRPC inference request from the provided inputs.
+
+    Args:
+        model_name (str): Name of the model to use for inference.
+        model_version (str): Version of the model to use.
+        inputs (List[Input]): List of input tensors to send to the model.
+        output_keys (List[str]): Names of the output tensors to request.
+
+    Returns:
+        grpc_service_pb2.ModelInferRequest: The formatted gRPC request object.
+
+    Raises:
+        NotImplementedError: If an unsupported datatype is encountered.
+    """
     ## Prepare Inputs
     raw_inputs = []
     grpc_inputs = []
@@ -76,6 +101,15 @@ def build_request(
 
 
 def encode_bytes(input: Input) -> bytes:
+    """
+    Encodes string inputs into bytes format for gRPC transmission.
+
+    Args:
+        input (Input): Input object containing string data to encode.
+
+    Returns:
+        bytes: Encoded byte string ready for transmission.
+    """
     string_contents = input.get_string_contents()
     encoded_list = [text.encode("utf8") for text in string_contents]
     encoded_array = np.array(encoded_list, dtype=np.bytes_).reshape(len(encoded_list), 1)
@@ -88,27 +122,17 @@ def encode_bytes(input: Input) -> bytes:
 
 def _serialize_bytes_tensor(input_tensor) -> np.array:
     """
-    Serializes a bytes tensor into a flat numpy array of length prepended
-    bytes. The numpy array should use dtype of np.object. For np.bytes,
-    numpy will remove trailing zeros at the end of byte sequence and because
-    of this it should be avoided.
+    Serializes a bytes tensor into a flat numpy array of length-prepended bytes.
 
-    Parameters
-    ----------
-    input_tensor : np.array
-        The bytes tensor to serialize.
+    Args:
+        input_tensor (np.array): The bytes tensor to serialize.
 
-    Returns
-    -------
-    serialized_bytes_tensor : np.array
-        The 1-D numpy array of type uint8 containing the serialized bytes in row-major form.
+    Returns:
+        np.array: 1-D numpy array of type uint8 containing serialized bytes in row-major form.
 
-    Raises
-    ------
-    InferenceServerException
-        If unable to serialize the given tensor.
+    Raises:
+        Exception: If unable to serialize the given tensor.
     """
-
     if input_tensor.size == 0:
         return np.empty([0], dtype=np.object_)
 

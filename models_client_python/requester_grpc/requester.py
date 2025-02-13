@@ -1,3 +1,11 @@
+"""
+Implements synchronous gRPC communication with machine learning model servers.
+
+This module provides the gRPC implementation of the Requester interface for synchronous
+model inference requests. It handles channel setup, message size configuration,
+and proper cleanup of gRPC resources.
+"""
+
 import struct
 from typing import List
 
@@ -11,9 +19,13 @@ from models_client_python.requester_grpc.gen import grpc_service_pb2, grpc_servi
 from models_client_python.requester_grpc.postprocess import process_response, validate_response
 from models_client_python.requester_grpc.preprocess import build_request
 
-# Default values from Nvidia's official cient.
-# MAX_GRPC_MESSAGE_SIZE Should be kept consistent with the value specified in src/core/constants.h, which specifies MAX_GRPC_MESSAGE_SIZE as INT32_MAX.
-# See the https://github.com/grpc/grpc/blob/master/doc/keepalive.md documentation for more information.
+""""
+Default values from Nvidia's official cient.
+MAX_GRPC_MESSAGE_SIZE Should be kept consistent with the value specified in src/core/constants.h,
+which specifies MAX_GRPC_MESSAGE_SIZE as INT32_MAX.
+
+Read the documentation https://github.com/grpc/grpc/blob/master/doc/keepalive.md for more details.
+"""
 INT32_MAX = 2 ** (struct.Struct("i").size * 8 - 1) - 1
 MAX_GRPC_MESSAGE_SIZE = INT32_MAX
 CHANNEL_OPT = [
@@ -27,6 +39,19 @@ CHANNEL_OPT = [
 
 
 class RequesterGrpc(Requester):
+    """
+    Synchronous gRPC client for making model inference requests.
+
+    This class implements the Requester interface using gRPC for synchronous communication
+    with model servers. It handles connection setup, message size limits, and cleanup.
+
+    Args:
+        config (RequesterConfig): Configuration containing host details for the gRPC connection.
+
+    Raises:
+        NotImplementedError: If HTTPS/TLS connections are attempted (not yet implemented).
+    """
+
     def __init__(self, config: RequesterConfig):
         # Always define _channel, even if we don’t create a real channel
         self._channel = None

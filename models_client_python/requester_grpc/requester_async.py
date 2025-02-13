@@ -1,3 +1,11 @@
+"""
+Implements asynchronous gRPC communication with machine learning model servers.
+
+This module provides the gRPC implementation of the RequesterAsync interface for non-blocking
+model inference requests. It handles async channel setup, message size configuration,
+and proper cleanup of gRPC resources.
+"""
+
 from typing import List
 
 import grpc.aio
@@ -13,6 +21,19 @@ from models_client_python.requester_grpc.requester import CHANNEL_OPT
 
 
 class RequesterAsyncGrpc(RequesterAsync):
+    """
+    Asynchronous gRPC client for making model inference requests.
+
+    This class implements the RequesterAsync interface using gRPC for non-blocking communication
+    with model servers. It provides async context manager support and resource cleanup.
+
+    Args:
+        config (RequesterConfig): Configuration containing host details for the gRPC connection.
+
+    Raises:
+        NotImplementedError: If HTTPS/TLS connections are attempted (not yet implemented).
+    """
+
     def __init__(self, config: RequesterConfig):
         # Always define _channel, even if we don’t create a real channel
         self._channel = None
