@@ -1,3 +1,39 @@
+"""
+Handles postprocessing of model inference responses from gRPC communication.
+
+This module provides functions to validate and decode gRPC responses into the client's
+output format. It handles various data types and ensures proper deserialization of
+output tensors from the response.
+
+Some functions in this module are adapted from the official Triton client library.
+"""
+
+# Copyright 2020-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#  * Neither the name of NVIDIA CORPORATION nor the names of its
+#    contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ``AS IS'' AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+# PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+# OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 import struct
 from typing import List
 
@@ -10,8 +46,21 @@ from models_client_python.requester_grpc.gen import grpc_service_pb2
 
 
 def validate_response(
-    response: grpc_service_pb2.ModelInferResponse, request: grpc_service_pb2.ModelInferRequest, output_keys: List[str]
+    response: grpc_service_pb2.ModelInferResponse,
+    request: grpc_service_pb2.ModelInferRequest,
+    output_keys: List[str],
 ) -> None:
+    """
+    Validates that the gRPC response matches the request parameters.
+
+    Args:
+        response (ModelInferResponse): The response received from the server.
+        request (ModelInferRequest): The original request sent to the server.
+        output_keys (List[str]): Names of the output tensors that were requested.
+
+    Raises:
+        ValueError: If response ID doesn't match request ID or if there is anoutput count mismatch.
+    """
     ## Check that the response ID correspond to the request
     if not response.id == request.id:
         raise ValueError("Response ID {response.id} does not match Request ID {request.id}")
@@ -22,18 +71,22 @@ def validate_response(
 
 
 def process_response(response: grpc_service_pb2.ModelInferResponse) -> List[Output]:
+    """
+    Processes a gRPC response into a list of Output objects.
+
+    Args:
+        response (ModelInferResponse): The response received from the server.
+
+    Returns:
+        List[Output]: List of processed output tensors.
+
+    Raises:
+        NotImplementedError: If an unsupported datatype is encountered.
+    """
     ## Prepare Outputs
     outputs = []
     for i, raw_output in enumerate(response.raw_output_contents):
         output = response.outputs[i]
-
-        ## TODO: this was in the original code, assert for these conditions in tests
-        # if index < len(response.raw_output_contents):
-        #     np_array = decode_bytes | decode_fp32
-        # elif len(output.contents.bytes_contents) != 0:
-        #     np_array = np.array(output.contents.bytes_contents, copy=False)
-        # else:
-        #     np_array = np.empty(0)
 
         # TODO: Support other datatypes.
         if output.datatype == Datatype.fp32:
@@ -65,6 +118,15 @@ def process_response(response: grpc_service_pb2.ModelInferResponse) -> List[Outp
 
 
 def decode_fp32(raw_output: bytes) -> List[float]:
+    """
+    Decodes raw bytes into a list of 32-bit floating point numbers.
+
+    Args:
+        raw_output (bytes): Raw bytes from the gRPC response.
+
+    Returns:
+        List[float]: List of decoded floating point values.
+    """
     np_array = np.frombuffer(raw_output, dtype=np.float32)
 
     return np_array.tolist()
@@ -72,8 +134,16 @@ def decode_fp32(raw_output: bytes) -> List[float]:
 
 def decode_bytes(raw_output: bytes) -> List[str]:
     """
-    String results contain a 4-byte string length followed by the actual string characters.
+    Decodes raw bytes into a list of strings.
+
+    Each string in the raw output is prefixed with a 4-byte length.
     Hence, need to decode the raw bytes to convert into array elements.
+
+    Args:
+        raw_output (bytes): Raw bytes from the gRPC response.
+
+    Returns:
+        List[str]: List of decoded strings.
     """
     np_array = _deserialize_bytes_tensor(raw_output)
 
@@ -82,21 +152,15 @@ def decode_bytes(raw_output: bytes) -> List[str]:
 
 def _deserialize_bytes_tensor(encoded_tensor) -> np.array:
     """
-    Deserializes an encoded bytes tensor into a
-    numpy array of dtype of python objects
+    Deserializes an encoded bytes tensor into a numpy array.
 
-    Parameters
-    ----------
-    encoded_tensor : bytes
-        The encoded bytes tensor where each element
-        has its length in first 4 bytes followed by
-        the content
-    Returns
-    -------
-    string_tensor : np.array
-        The 1-D numpy array of type object containing the
-        deserialized bytes in row-major form.
+    Args:
+        encoded_tensor (bytes): The encoded bytes tensor where each element
+            has its length in first 4 bytes followed by the content.
 
+    Returns:
+        np.array: 1-D numpy array of type object containing the
+            deserialized bytes in row-major form.
     """
     strs = []
     offset = 0

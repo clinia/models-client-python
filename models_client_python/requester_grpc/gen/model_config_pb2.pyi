@@ -105,7 +105,7 @@ class ModelTensorReshape(_message.Message):
     def __init__(self, shape: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class ModelInput(_message.Message):
-    __slots__ = ("name", "data_type", "format", "dims", "reshape", "is_shape_tensor", "allow_ragged_batch", "optional")
+    __slots__ = ("name", "data_type", "format", "dims", "reshape", "is_shape_tensor", "allow_ragged_batch", "optional", "is_non_linear_format_io")
     class Format(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         FORMAT_NONE: _ClassVar[ModelInput.Format]
@@ -122,6 +122,7 @@ class ModelInput(_message.Message):
     IS_SHAPE_TENSOR_FIELD_NUMBER: _ClassVar[int]
     ALLOW_RAGGED_BATCH_FIELD_NUMBER: _ClassVar[int]
     OPTIONAL_FIELD_NUMBER: _ClassVar[int]
+    IS_NON_LINEAR_FORMAT_IO_FIELD_NUMBER: _ClassVar[int]
     name: str
     data_type: DataType
     format: ModelInput.Format
@@ -130,23 +131,26 @@ class ModelInput(_message.Message):
     is_shape_tensor: bool
     allow_ragged_batch: bool
     optional: bool
-    def __init__(self, name: _Optional[str] = ..., data_type: _Optional[_Union[DataType, str]] = ..., format: _Optional[_Union[ModelInput.Format, str]] = ..., dims: _Optional[_Iterable[int]] = ..., reshape: _Optional[_Union[ModelTensorReshape, _Mapping]] = ..., is_shape_tensor: bool = ..., allow_ragged_batch: bool = ..., optional: bool = ...) -> None: ...
+    is_non_linear_format_io: bool
+    def __init__(self, name: _Optional[str] = ..., data_type: _Optional[_Union[DataType, str]] = ..., format: _Optional[_Union[ModelInput.Format, str]] = ..., dims: _Optional[_Iterable[int]] = ..., reshape: _Optional[_Union[ModelTensorReshape, _Mapping]] = ..., is_shape_tensor: bool = ..., allow_ragged_batch: bool = ..., optional: bool = ..., is_non_linear_format_io: bool = ...) -> None: ...
 
 class ModelOutput(_message.Message):
-    __slots__ = ("name", "data_type", "dims", "reshape", "label_filename", "is_shape_tensor")
+    __slots__ = ("name", "data_type", "dims", "reshape", "label_filename", "is_shape_tensor", "is_non_linear_format_io")
     NAME_FIELD_NUMBER: _ClassVar[int]
     DATA_TYPE_FIELD_NUMBER: _ClassVar[int]
     DIMS_FIELD_NUMBER: _ClassVar[int]
     RESHAPE_FIELD_NUMBER: _ClassVar[int]
     LABEL_FILENAME_FIELD_NUMBER: _ClassVar[int]
     IS_SHAPE_TENSOR_FIELD_NUMBER: _ClassVar[int]
+    IS_NON_LINEAR_FORMAT_IO_FIELD_NUMBER: _ClassVar[int]
     name: str
     data_type: DataType
     dims: _containers.RepeatedScalarFieldContainer[int]
     reshape: ModelTensorReshape
     label_filename: str
     is_shape_tensor: bool
-    def __init__(self, name: _Optional[str] = ..., data_type: _Optional[_Union[DataType, str]] = ..., dims: _Optional[_Iterable[int]] = ..., reshape: _Optional[_Union[ModelTensorReshape, _Mapping]] = ..., label_filename: _Optional[str] = ..., is_shape_tensor: bool = ...) -> None: ...
+    is_non_linear_format_io: bool
+    def __init__(self, name: _Optional[str] = ..., data_type: _Optional[_Union[DataType, str]] = ..., dims: _Optional[_Iterable[int]] = ..., reshape: _Optional[_Union[ModelTensorReshape, _Mapping]] = ..., label_filename: _Optional[str] = ..., is_shape_tensor: bool = ..., is_non_linear_format_io: bool = ...) -> None: ...
 
 class BatchInput(_message.Message):
     __slots__ = ("kind", "target_name", "data_type", "source_input")

@@ -1,3 +1,10 @@
+"""
+Defines the base interfaces for synchronous and asynchronous model requesters.
+
+This module provides abstract base classes that define the contract for implementing
+model inference clients, both synchronous and asynchronous variants.
+"""
+
 from abc import ABC, abstractmethod
 from typing import List
 
@@ -9,6 +16,13 @@ from models_client_python.common.output import Output
 
 
 class Requester(ABC):
+    """
+    Abstract base class for synchronous model inference requests.
+
+    Implementations of this interface handle the communication with model servers,
+    managing connections, and performing inference requests in a blocking manner.
+    """
+
     @abstractmethod
     def infer(self, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]) -> List[Output]:
         pass
@@ -35,6 +49,14 @@ class Requester(ABC):
 
 
 class RequesterAsync(ABC):
+    """
+    Abstract base class for asynchronous model inference requests.
+
+    Implementations of this interface handle the communication with model servers,
+    managing connections, and performing inference requests in a non-blocking manner
+    using async/await patterns.
+    """
+
     @abstractmethod
     async def infer(
         self, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]
@@ -59,4 +81,11 @@ class RequesterAsync(ABC):
 
 
 class RequesterConfig(BaseModel):
+    """
+    Configuration model for Requester instances.
+
+    Attributes:
+        host (Host): Host configuration including URL, port, and scheme.
+    """
+
     host: Host

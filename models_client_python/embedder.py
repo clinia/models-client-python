@@ -16,18 +16,51 @@ _EMBEDDER_INPUT_DATATYPE = Datatype.bytes
 
 
 class EmbedRequest(BaseModel):
+    """
+    Request model for generating embeddings from text.
+
+    Attributes:
+        texts (List[str]): The list of texts to be embedded.
+        id (str): The unique identifier for the request.
+    """
+
     texts: List[str]
     id: str = str(uuid4())
 
 
 class EmbedResponse(BaseModel):
+    """
+    Response model for generating embeddings from text.
+
+    Attributes:
+        id (str): The unique identifier for the response, corresponding to that of the request.
+        embeddings (List[List[float]] | None): The list of embeddings for each text. Each embedding is a list of floats, corresponding to the embedding dimensions. The outer list length matches the number of input texts.
+    """
+
     id: str
     embeddings: List[List[float]] | None = None
 
 
 class Embedder(Client):
+    """
+    Embedder class for generating embeddings from text.
+
+    Methods:
+        embed: Synchronously generate embeddings using a specified model.
+        embed_async: Asynchronously generate embeddings using a specified model. Prefer this method if possible since it is non-blocking.
+    """
+
     @staticmethod
     def _build_inputs(req: EmbedRequest) -> List[Input]:
+        """
+        Build the inputs required for the embedding model.
+
+        Args:
+            req (EmbedRequest): The request containing texts to be embedded.
+
+        Returns:
+            List[Input]: The list of inputs for the model.
+        """
         return [
             Input(
                 id=req.id,
@@ -40,6 +73,16 @@ class Embedder(Client):
 
     @staticmethod
     def _process_outputs(outputs: List[Output], req: EmbedRequest) -> EmbedResponse:
+        """
+        Process the outputs from the embedding model.
+
+        Args:
+            outputs (List[Output]): The outputs from the model.
+            req (EmbedRequest): The original request.
+
+        Returns:
+            EmbedResponse: The response containing the embeddings.
+        """
         if not outputs:
             raise ValueError("No outputs received")
 
@@ -48,6 +91,17 @@ class Embedder(Client):
         return EmbedResponse(id=req.id, embeddings=embeddings)
 
     def embed(self, model_name: str, model_version: str, req: EmbedRequest) -> EmbedResponse:
+        """
+        Synchronously generate embeddings using a specified model.
+
+        Args:
+            model_name (str): The name of the model to use.
+            model_version (str): The version of the model to use.
+            req (EmbedRequest): The request containing texts to be embedded.
+
+        Returns:
+            EmbedResponse: The response containing the embeddings.
+        """
         inputs = self._build_inputs(req)
 
         try:
@@ -64,6 +118,17 @@ class Embedder(Client):
             return EmbedResponse(id=req.id)
 
     async def embed_async(self, model_name: str, model_version: str, req: EmbedRequest) -> EmbedResponse:
+        """
+        Asynchronously generate embeddings using a specified model.
+
+        Args:
+            model_name (str): The name of the model to use.
+            model_version (str): The version of the model to use.
+            req (EmbedRequest): The request containing texts to be embedded.
+
+        Returns:
+            EmbedResponse: The response containing the embeddings.
+        """
         inputs = self._build_inputs(req)
 
         try:
