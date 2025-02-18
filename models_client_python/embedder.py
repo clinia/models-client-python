@@ -63,7 +63,6 @@ class Embedder(Client):
         """
         return [
             Input(
-                id=req.id,
                 name=_EMBEDDER_INPUT_KEY,
                 shape=(len(req.texts), 1),
                 datatype=_EMBEDDER_INPUT_DATATYPE,
@@ -106,6 +105,7 @@ class Embedder(Client):
 
         try:
             outputs = self.requester.infer(
+                id=req.id,
                 model_name=model_name,
                 model_version=model_version,
                 inputs=inputs,
@@ -133,6 +133,7 @@ class Embedder(Client):
 
         try:
             outputs = await self.requester.infer(
+                id=req.id,
                 model_name=model_name,
                 model_version=model_version,
                 inputs=inputs,

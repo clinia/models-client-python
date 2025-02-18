@@ -70,14 +70,12 @@ class Ranker(Client):
         input_queries = [req.query] * len(req.texts)
         return [
             Input(
-                id=req.id,
                 name=_RANKER_QUERY_INPUT_KEY,
                 shape=(len(input_queries), 1),
                 datatype=_RANKER_QUERY_INPUT_DATATYPE,
                 content=Content(string_contents=input_queries),
             ),
             Input(
-                id=req.id,
                 name=_RANKER_TEXT_INPUT_KEY,
                 shape=(len(req.texts), 1),
                 datatype=_RANKER_TEXT_INPUT_DATATYPE,
@@ -128,6 +126,7 @@ class Ranker(Client):
 
         try:
             outputs = self.requester.infer(
+                id=req.id,
                 model_name=model_name,
                 model_version=model_version,
                 inputs=inputs,
@@ -155,6 +154,7 @@ class Ranker(Client):
 
         try:
             outputs = await self.requester.infer(
+                id=req.id,
                 model_name=model_name,
                 model_version=model_version,
                 inputs=inputs,

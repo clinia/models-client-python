@@ -64,8 +64,11 @@ class RequesterGrpc(Requester):
 
         self._client_stub = grpc_service_pb2_grpc.GRPCInferenceServiceStub(channel=self._channel)
 
-    def infer(self, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]) -> List[Output]:
+    def infer(
+        self, id: str, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]
+    ) -> List[Output]:
         request = build_request(
+            id=id,
             model_name=model_name,
             model_version=model_version,
             inputs=inputs,
@@ -76,7 +79,7 @@ class RequesterGrpc(Requester):
 
         return process_response(response=response)
 
-    def stream(self, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]) -> str:
+    def stream(self, id: str, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]) -> str:
         raise NotImplementedError
 
     def close(self):

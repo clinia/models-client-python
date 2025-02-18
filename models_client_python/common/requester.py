@@ -24,11 +24,13 @@ class Requester(ABC):
     """
 
     @abstractmethod
-    def infer(self, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]) -> List[Output]:
+    def infer(
+        self, id: str, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]
+    ) -> List[Output]:
         pass
 
     @abstractmethod
-    def stream(self, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]) -> str:
+    def stream(self, id: str, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]) -> str:
         pass
 
     @abstractmethod

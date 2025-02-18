@@ -21,14 +21,12 @@ class Input(BaseModel, use_enum_values=True):
     access the contents in appropriate formats.
 
     Attributes:
-        id (str): Unique identifier for the input.
         name (str): Name of the input tensor.
         shape (Tuple[int, ...]): Dimensions of the input tensor.
         datatype (Datatype): Data type of the input tensor elements.
         content (Content): The actual input data content.
     """
 
-    id: str
     name: str
     shape: Tuple[int, ...]
     datatype: Datatype

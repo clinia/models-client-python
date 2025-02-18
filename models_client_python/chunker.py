@@ -82,7 +82,6 @@ class Chunker(Client):
         """
         return [
             Input(
-                id=req.id,
                 name=_CHUNKER_INPUT_KEY,
                 shape=(len(req.texts), 1),
                 datatype=_CHUNKER_INPUT_DATATYPE,
@@ -130,6 +129,7 @@ class Chunker(Client):
 
         try:
             outputs = self.requester.infer(
+                id=req.id,
                 model_name=model_name,
                 model_version=model_version,
                 inputs=inputs,
@@ -157,6 +157,7 @@ class Chunker(Client):
 
         try:
             outputs = await self.requester.infer(
+                id=req.id,
                 model_name=model_name,
                 model_version=model_version,
                 inputs=inputs,

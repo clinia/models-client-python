@@ -45,7 +45,7 @@ from models_client_python.requester_grpc.gen import grpc_service_pb2
 
 
 def build_request(
-    model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]
+    id: str, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]
 ) -> grpc_service_pb2.ModelInferRequest:
     """
     Builds a gRPC inference request from the provided inputs.
@@ -87,9 +87,8 @@ def build_request(
     ]
 
     ## Format Request
-    # NOTE: There will be multiple IDs inside a request when batching (one per input), we just take the first one to assert later on that the model answered to the right batch.
     request = grpc_service_pb2.ModelInferRequest(
-        id=inputs[0].id,
+        id=id,
         model_name=model_name,
         model_version=model_version,
         inputs=grpc_inputs,

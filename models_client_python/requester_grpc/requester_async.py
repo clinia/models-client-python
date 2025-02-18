@@ -47,9 +47,10 @@ class RequesterAsyncGrpc(RequesterAsync):
         self._client_stub = grpc_service_pb2_grpc.GRPCInferenceServiceStub(channel=self._channel)
 
     async def infer(
-        self, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]
+        self, id: str, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]
     ) -> List[Output]:
         request = build_request(
+            id=id,
             model_name=model_name,
             model_version=model_version,
             inputs=inputs,
@@ -61,7 +62,9 @@ class RequesterAsyncGrpc(RequesterAsync):
 
         return process_response(response=response)
 
-    async def stream(self, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]) -> str:
+    async def stream(
+        self, id: str, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]
+    ) -> str:
         raise NotImplementedError
 
     async def close(self):
