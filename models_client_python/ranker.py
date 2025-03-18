@@ -13,7 +13,7 @@ from models_client_python.common.output import Output
 _RANKER_QUERY_INPUT_KEY = "query"
 _RANKER_QUERY_INPUT_DATATYPE = Datatype.bytes
 
-_RANKER_TEXT_INPUT_KEY = "passage"
+_RANKER_TEXT_INPUT_KEY = "text"
 _RANKER_TEXT_INPUT_DATATYPE = Datatype.bytes
 
 _RANKER_OUTPUT_KEY = "score"
@@ -105,7 +105,7 @@ class Ranker(Client):
         flattened_scores = []
         for score in scores:
             if len(score) != 1:
-                raise ValueError(f"Expected a single score per passage, but got {len(score)} elements")
+                raise ValueError(f"Expected a single score per text, but got {len(score)} elements")
             flattened_scores.extend(score)
 
         return RankResponse(id=req.id, scores=flattened_scores)
