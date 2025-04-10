@@ -44,6 +44,15 @@ texts = ["Where is Clinia based?", "Clinia is based in Montreal"]
 requester_config = RequesterConfig(host=Host(url="127.0.0.1", port="8001", scheme=HostScheme.http))
 
 with Embedder.from_grpc(config=requester_config) as embedder:
+    # Will raise error if server is not ready
+    embedder.requester.health()
+
+    # Will raise error if model is not ready
+    embedder.ready(
+        model_name=getenv("CLINIA_MODEL_NAME"),
+        model_version=getenv("CLINIA_MODEL_VERSION")
+    )
+
     request = EmbedRequest(id=str(uuid4()), texts=texts)
     embeddings = embedder.embed(
         model_name=getenv("CLINIA_MODEL_NAME"),
@@ -67,6 +76,15 @@ async def get_embeddings(texts: List[str]):
     requests = [EmbedRequest(id=str(uuid4()), texts=[text]) for text in texts]
 
     async with Embedder.from_grpc_async(config=requester_config) as embedder:
+        # Will raise error if server is not ready
+        await embedder.requester.health()
+
+        # Will raise error if model is not ready
+        await embedder.ready_async(
+            model_name=getenv("CLINIA_MODEL_NAME"),
+            model_version=getenv("CLINIA_MODEL_VERSION")
+        )
+
         tasks = [
             embedder.embed_async(
                 model_name=getenv("CLINIA_MODEL_NAME"),
@@ -94,6 +112,15 @@ from models_client_python.ranker import Ranker, RankRequest
 requester_config = RequesterConfig(host=Host(url="127.0.0.1", port="8001", scheme=HostScheme.http))
 
 with Ranker.from_grpc(config=requester_config) as ranker:
+    # Will raise error if server is not ready
+    ranker.requester.health()
+
+    # Will raise error if model is not ready
+    ranker.ready(
+        model_name=getenv("CLINIA_MODEL_NAME"),
+        model_version=getenv("CLINIA_MODEL_VERSION")
+    )
+
     request = RankRequest(
         id=str(uuid4()),
         query="Where is Clinia based?",
@@ -125,6 +152,15 @@ texts = [
 requester_config = RequesterConfig(host=Host(url="127.0.0.1", port="8001", scheme=HostScheme.http))
 
 with Chunker.from_grpc(config=requester_config) as chunker:
+    # Will raise error if server is not ready
+    chunker.requester.health()
+
+    # Will raise error if model is not ready
+    chunker.ready(
+        model_name=getenv("CLINIA_MODEL_NAME"),
+        model_version=getenv("CLINIA_MODEL_VERSION")
+    )
+
     request = ChunkRequest(id=str(uuid4()), texts=texts)
     chunks = chunker.chunk(
         model_name=getenv("CLINIA_MODEL_NAME"),

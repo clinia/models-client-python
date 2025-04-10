@@ -34,6 +34,15 @@ class Requester(ABC):
         pass
 
     @abstractmethod
+    def ready(self, model_name: str, model_version: str) -> None:
+        pass
+
+    @abstractmethod
+    def health(self) -> None:
+        """Only the requester implements this method, the clients only implement the ready method."""
+        pass
+
+    @abstractmethod
     def close(self) -> None:
         pass
 
@@ -67,6 +76,14 @@ class RequesterAsync(ABC):
 
     @abstractmethod
     async def stream(self, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]) -> str:
+        pass
+
+    @abstractmethod
+    async def ready(self, model_name: str, model_version: str) -> None:
+        pass
+
+    @abstractmethod
+    async def health(self) -> None:
         pass
 
     @abstractmethod

@@ -35,6 +35,14 @@ class BaseClient(ABC):
     async def __aexit__(self, type, value, traceback):
         pass
 
+    @abstractmethod
+    def ready(self, model_name: str, model_version: str):
+        pass
+
+    @abstractmethod
+    async def ready_async(self, model_name: str, model_version: str):
+        pass
+
     @classmethod
     @abstractmethod
     def from_grpc(cls, config: RequesterConfig):

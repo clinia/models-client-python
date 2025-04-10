@@ -44,6 +44,13 @@ from models_client_python.common.input import Input
 from models_client_python.requester_grpc.gen import grpc_service_pb2
 
 
+def format_model_name_and_version(model_name: str, model_version: str) -> tuple[str, str]:
+    """
+    The model version is always set to 1 because all models deployed within the same Triton server instance -- when stored in different model repositories -- must have unique names.
+    """
+    return f"{model_name}:{model_version}", "1"
+
+
 def build_request(
     id: str, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]
 ) -> grpc_service_pb2.ModelInferRequest:
@@ -87,11 +94,10 @@ def build_request(
     ]
 
     ## Format Request
-    # NOTE: The model version is always set to 1 because all models deployed within the same Triton server instance -- when stored in different model repositories -- must have unique names.
     request = grpc_service_pb2.ModelInferRequest(
         id=id,
-        model_name=f"{model_name}:{model_version}",
-        model_version="1",
+        model_name=model_name,
+        model_version=model_version,
         inputs=grpc_inputs,
         outputs=grpc_outputs,
         raw_input_contents=raw_inputs,

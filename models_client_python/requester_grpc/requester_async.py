@@ -16,7 +16,7 @@ from models_client_python.common.output import Output
 from models_client_python.common.requester import RequesterAsync, RequesterConfig
 from models_client_python.requester_grpc.gen import grpc_service_pb2, grpc_service_pb2_grpc
 from models_client_python.requester_grpc.postprocess import process_response, validate_response
-from models_client_python.requester_grpc.preprocess import build_request
+from models_client_python.requester_grpc.preprocess import build_request, format_model_name_and_version
 from models_client_python.requester_grpc.requester import CHANNEL_OPT
 
 
@@ -49,10 +49,13 @@ class RequesterAsyncGrpc(RequesterAsync):
     async def infer(
         self, id: str, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]
     ) -> List[Output]:
+        # Format model name and version
+        model_name_formatted, model_version_formatted = format_model_name_and_version(model_name, model_version)
+
         request = build_request(
             id=id,
-            model_name=model_name,
-            model_version=model_version,
+            model_name=model_name_formatted,
+            model_version=model_version_formatted,
             inputs=inputs,
             output_keys=output_keys,
         )
@@ -66,6 +69,23 @@ class RequesterAsyncGrpc(RequesterAsync):
         self, id: str, model_name: str, model_version: str, inputs: List[Input], output_keys: List[str]
     ) -> str:
         raise NotImplementedError
+
+    async def health(self):
+        request = grpc_service_pb2.ServerReadyRequest()
+        response: grpc_service_pb2.ServerReadyResponse = await self._client_stub.ServerReady(request=request)
+
+        if not response.ready:
+            raise RuntimeError("Server is not ready")
+
+    async def ready(self, model_name: str, model_version: str) -> None:
+        # Format model name and version
+        model_name_formatted, model_version_formatted = format_model_name_and_version(model_name, model_version)
+
+        request = grpc_service_pb2.ModelReadyRequest(name=model_name_formatted, version=model_version_formatted)
+        response: grpc_service_pb2.ModelReadyResponse = await self._client_stub.ModelReady(request=request)
+
+        if not response.ready:
+            raise RuntimeError(f"Model {model_name} with version {model_version} is not ready")
 
     async def close(self):
         """
