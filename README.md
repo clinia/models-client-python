@@ -98,6 +98,76 @@ texts = ["Where is Clinia based?"]
 embeddings = asyncio.run(get_embeddings(texts=texts * 32))  # Example with batch size of 32
 ```
 
+### Sparse Embedder Model
+
+#### Batch inference
+
+```python
+from os import getenv
+from uuid import uuid4
+from models_client_python.common.host import Host, HostScheme
+from models_client_python.common.requester import RequesterConfig
+from models_client_python.sparse_embedder import SparseEmbedder, SparseEmbedRequest
+
+texts = ["Where is Clinia based?", "Clinia is based in Montreal"]
+
+requester_config = RequesterConfig(host=Host(url="127.0.0.1", port="8001", scheme=HostScheme.http))
+
+with SparseEmbedder.from_grpc(config=requester_config) as embedder:
+    # Will raise error if server is not ready
+    embedder.requester.health()
+
+    # Will raise error if model is not ready
+    embedder.ready(
+        model_name=getenv("CLINIA_MODEL_NAME"),
+        model_version=getenv("CLINIA_MODEL_VERSION")
+    )
+
+    request = EmbedRequest(id=str(uuid4()), texts=texts)
+    embeddings = embedder.embed(
+        model_name=getenv("CLINIA_MODEL_NAME"),
+        model_version=getenv("CLINIA_MODEL_VERSION"),
+        req=request
+    )
+```
+
+#### Async single element inference
+
+```python
+import asyncio
+from os import getenv
+from uuid import uuid4
+from models_client_python.common.host import Host, HostScheme
+from models_client_python.common.requester import RequesterConfig
+from models_client_python.sparse_embedder import SparseEmbedder, SparseEmbedRequest
+
+async def get_embeddings(texts: List[str]):
+    requester_config = RequesterConfig(host=Host(url="127.0.0.1", port="8001", scheme=HostScheme.http))
+    requests = [SparseEmbedRequest(id=str(uuid4()), texts=[text]) for text in texts]
+
+    async with SparseEmbedder.from_grpc_async(config=requester_config) as embedder:
+        # Will raise error if server is not ready
+        await embedder.requester.health()
+
+        # Will raise error if model is not ready
+        await embedder.ready_async(
+            model_name=getenv("CLINIA_MODEL_NAME"),
+            model_version=getenv("CLINIA_MODEL_VERSION")
+        )
+
+        tasks = [
+            embedder.embed_async(
+                model_name=getenv("CLINIA_MODEL_NAME"),
+                model_version=getenv("CLINIA_MODEL_VERSION"),
+                req=req
+            ) for req in requests
+        ]
+        return await asyncio.gather(*tasks)
+
+texts = ["Where is Clinia based?"]
+embeddings = asyncio.run(get_embeddings(texts=texts * 32))  # Example with batch size of 32
+```
+
 ### Ranker Model
 
 #### Single element inference
