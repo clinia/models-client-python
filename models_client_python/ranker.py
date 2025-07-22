@@ -122,6 +122,12 @@ class Ranker(Client):
         Returns:
             RankResponse: The response containing the scores.
         """
+        if not req.query.strip():
+            raise ValueError("Query must not be empty.")
+
+        if not req.texts:
+            raise ValueError("No texts provided for ranking.")
+
         inputs = self._build_inputs(req)
 
         try:

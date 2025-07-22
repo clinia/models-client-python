@@ -125,6 +125,9 @@ class Chunker(Client):
         Returns:
             ChunkResponse: The response containing the chunks.
         """
+        if not req.texts:
+            raise ValueError("No texts provided for chunking.")
+
         inputs = self._build_inputs(req)
 
         try:

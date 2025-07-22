@@ -102,6 +102,8 @@ class Embedder(Client):
             EmbedResponse: The response containing the embeddings.
         """
         inputs = self._build_inputs(req)
+        if not req.texts:
+            raise ValueError("No texts provided for embedding.")
 
         try:
             outputs = self.requester.infer(
