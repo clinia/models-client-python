@@ -124,7 +124,7 @@ with SparseEmbedder.from_grpc(config=requester_config) as embedder:
     )
 
     request = EmbedRequest(id=str(uuid4()), texts=texts)
-    embeddings = embedder.embed(
+    embeddings = embedder.sparse_embed(
         model_name=getenv("CLINIA_MODEL_NAME"),
         model_version=getenv("CLINIA_MODEL_VERSION"),
         req=request
@@ -156,7 +156,7 @@ async def get_embeddings(texts: List[str]):
         )
 
         tasks = [
-            embedder.embed_async(
+            embedder.sparse_embed_async(
                 model_name=getenv("CLINIA_MODEL_NAME"),
                 model_version=getenv("CLINIA_MODEL_VERSION"),
                 req=req

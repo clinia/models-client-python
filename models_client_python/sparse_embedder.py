@@ -93,7 +93,7 @@ class SparseEmbedder(Client):
         embeddings = [json.loads(embedding) for embedding in string_embeddings]
         return SparseEmbedResponse(id=req.id, embeddings=embeddings)
 
-    def embed(self, model_name: str, model_version: str, req: SparseEmbedRequest) -> SparseEmbedResponse:
+    def sparse_embed(self, model_name: str, model_version: str, req: SparseEmbedRequest) -> SparseEmbedResponse:
         """
         Synchronously generate embeddings using a specified model.
 
@@ -122,7 +122,9 @@ class SparseEmbedder(Client):
             logging.error(f"Error while sparse embedding: {e}")
             return SparseEmbedResponse(id=req.id)
 
-    async def embed_async(self, model_name: str, model_version: str, req: SparseEmbedRequest) -> SparseEmbedResponse:
+    async def sparse_embed_async(
+        self, model_name: str, model_version: str, req: SparseEmbedRequest
+    ) -> SparseEmbedResponse:
         """
         Asynchronously generate embeddings using a specified model.
 
